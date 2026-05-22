@@ -1,0 +1,35 @@
+version: "3.8"
+
+# =============================================================================
+# Grafana Custom Docker Compose
+# =============================================================================
+# This file mirrors your current production setup (grafana/grafana-oss:10.0.0)
+# with your custom configuration applied via custom.ini.
+#
+# Usage:
+#   docker compose -f custom/docker-compose.yaml up -d
+# =============================================================================
+
+services:
+  grafana:
+    image: grafana/grafana-oss:10.0.0
+    container_name: Grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      # Custom configuration (contains only your non-default settings)
+      - ./custom/grafana.ini:/etc/grafana/grafana.ini
+      # Data persistence (adjust host path to your needs)
+      - grafana-data:/var/lib/grafana
+    environment:
+      # Path overrides (matching your current setup)
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+      - GF_PATHS_DATA=/var/lib/grafana
+      - GF_PATHS_HOME=/usr/share/grafana
+      - GF_PATHS_LOGS=/var/log/grafana
+      - GF_PATHS_PLUGINS=/var/lib/grafana/plugins
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
