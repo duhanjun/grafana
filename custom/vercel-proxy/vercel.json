@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "https://your-grafana-service.up.railway.app/$1"
+    }
+  ]
+}
