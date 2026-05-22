@@ -1,12 +1,9 @@
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+  runtime: 'edge',
 };
 
 export default async function handler(req) {
-  const url = new URL(req.url);
-  const targetPath = url.pathname + url.search;
+  const targetPath = req.nextUrl.pathname + req.nextUrl.search;
   const targetUrl = `https://grafana-production-0a56.up.railway.app${targetPath}`;
 
   try {
