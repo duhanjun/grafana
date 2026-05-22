@@ -12,8 +12,6 @@ dockerfile = "custom/Dockerfile"
 
 [deploy]
 numReplicas = 1
-healthcheckPath = "/api/health"
-healthcheckTimeout = 60
 startCommand = "/run.sh"
 
 [services]
