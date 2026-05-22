@@ -1,4 +1,6 @@
 {
+  "buildCommand": "echo \"No build required\"",
+  "installCommand": "echo \"No install required\"",
   "rewrites": [
     {
       "source": "/(.*)",
