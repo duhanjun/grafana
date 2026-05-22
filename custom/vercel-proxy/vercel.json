@@ -1,8 +1,10 @@
 {
-  "rewrites": [
+  "installCommand": "echo 'No install required'",
+  "redirects": [
     {
       "source": "/(.*)",
-      "destination": "https://grafana-production-0a56.up.railway.app/$1"
+      "destination": "https://grafana-production-0a56.up.railway.app/$1",
+      "permanent": false
     }
   ]
 }

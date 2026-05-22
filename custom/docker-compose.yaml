@@ -3,26 +3,36 @@ version: "3.8"
 # =============================================================================
 # Grafana Custom Docker Compose
 # =============================================================================
-# This file mirrors your current production setup (grafana/grafana-oss:10.0.0)
-# with your custom configuration applied via custom.ini.
-#
 # Usage:
-#   docker compose -f custom/docker-compose.yaml up -d
+#   # 开发环境启动（需要先设置环境变量）
+#   cp custom/.env.example custom/.env
+#   # 编辑 custom/.env 填写你的配置
+#   docker compose -f custom/docker-compose.yaml --env-file custom/.env up -d
+#
+#   # Railway 部署时自动使用环境变量
 # =============================================================================
 
 services:
   grafana:
-    image: grafana/grafana-oss:10.0.0
+    image: grafana/grafana-oss:latest
     container_name: Grafana
     ports:
       - "3000:3000"
     volumes:
-      # Custom configuration (contains only your non-default settings)
-      - ./custom/grafana.ini:/etc/grafana/grafana.ini
-      # Data persistence (adjust host path to your needs)
       - grafana-data:/var/lib/grafana
     environment:
-      # Path overrides (matching your current setup)
+      # --- Database (MySQL) - from environment variables ---
+      # Set these in your deployment platform (Railway, env file, etc.)
+      # - GF_DATABASE_TYPE
+      # - GF_DATABASE_HOST
+      # - GF_DATABASE_NAME
+      # - GF_DATABASE_USER
+      # - GF_DATABASE_PASSWORD
+
+      # --- Custom Grafana Settings ---
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+
+      # --- Path overrides ---
       - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
       - GF_PATHS_DATA=/var/lib/grafana
       - GF_PATHS_HOME=/usr/share/grafana

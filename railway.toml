@@ -1,0 +1,18 @@
+# =============================================================================
+# Railway Configuration
+# =============================================================================
+# This file configures Railway deployment for Grafana.
+# Uses official Grafana image directly via custom/Dockerfile
+# Database connection is configured via Railway environment variables.
+# =============================================================================
+
+[build]
+builder = "dockerfile"
+dockerfile = "custom/Dockerfile"
+
+[deploy]
+numReplicas = 1
+startCommand = "/run.sh"
+
+[services]
+grafana = { port = 3000 }
