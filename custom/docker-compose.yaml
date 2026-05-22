@@ -17,12 +17,17 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Custom configuration (contains only your non-default settings)
       - ./custom/grafana.ini:/etc/grafana/grafana.ini
-      # Data persistence (adjust host path to your needs)
       - grafana-data:/var/lib/grafana
     environment:
-      # Path overrides (matching your current setup)
+      # --- Database (MySQL) ---
+      - GF_DATABASE_TYPE=mysql
+      - GF_DATABASE_HOST=dphzmy-fzclksyqclcdfl6j-pub.proxy.dms.aliyuncs.com:3306
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=NQ0T1IQXHhg1koaVu0LcT5kb
+      - GF_DATABASE_PASSWORD=ZmwKSN6VS4UdboA5FNI0Zj01BVil99
+
+      # --- Path overrides (matching your current setup) ---
       - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
       - GF_PATHS_DATA=/var/lib/grafana
       - GF_PATHS_HOME=/usr/share/grafana
