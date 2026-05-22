@@ -5,9 +5,6 @@ FROM grafana/grafana-oss:${GRAFANA_VERSION}
 ARG GF_INSTALL_IMAGE_RENDERER_PLUGIN="false"
 ARG GF_GID="0"
 
-# Copy custom configuration into the image
-COPY custom/grafana.ini /etc/grafana/grafana.ini
-
 USER root
 
 RUN mkdir -p "$GF_PATHS_PLUGINS" && \
