@@ -1,6 +1,7 @@
 {
-  "buildCommand": "echo \"No build required\"",
+  "buildCommand": "mkdir -p public && touch public/index.html",
   "installCommand": "echo \"No install required\"",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
