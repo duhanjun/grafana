@@ -1,10 +1,10 @@
 # =============================================================================
 # Custom Dockerfile for Railway Deployment
 # =============================================================================
-# Simple Dockerfile using official Grafana image directly
+# Uses latest Grafana version for better DMS compatibility
 # =============================================================================
 
-FROM grafana/grafana-oss:10.0.0
+FROM grafana/grafana-oss:latest
 
 # Environment variables will be set in Railway dashboard
 # GF_DATABASE_TYPE
@@ -13,6 +13,3 @@ FROM grafana/grafana-oss:10.0.0
 # GF_DATABASE_USER
 # GF_DATABASE_PASSWORD
 # GF_SECURITY_ALLOW_EMBEDDING
-
-# The official image already includes the default entrypoint
-# No need to change anything else!
