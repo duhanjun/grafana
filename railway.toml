@@ -2,13 +2,13 @@
 # Railway Configuration
 # =============================================================================
 # This file configures Railway deployment for Grafana.
-# Uses official Grafana image directly - no custom build needed!
+# Uses official Grafana image directly via custom/Dockerfile
 # Database connection is configured via Railway environment variables.
 # =============================================================================
 
 [build]
 builder = "dockerfile"
-dockerfile = "Dockerfile"
+dockerfile = "custom/Dockerfile"
 
 [deploy]
 numReplicas = 1
