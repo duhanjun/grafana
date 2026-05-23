@@ -7,21 +7,27 @@ export default async function middleware(request) {
   const targetPath = url.pathname + url.search;
   const targetUrl = `https://grafana-production-0a56.up.railway.app${targetPath}`;
 
+  const excludeHeaders = new Set([
+    'host', 'connection', 'content-length', 'content-encoding', 'transfer-encoding',
+  ]);
+
+  const forwardHeaders = new Headers();
+  for (const [key, value] of request.headers) {
+    if (!excludeHeaders.has(key.toLowerCase())) {
+      forwardHeaders.set(key, value);
+    }
+  }
+  forwardHeaders.set('X-Forwarded-Host', 'jingni2.citongshuo.online');
+  forwardHeaders.set('X-Forwarded-Proto', 'https');
+
   const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
-  const body = hasBody ? await request.text() : undefined;
+  const clonedRequest = hasBody ? request.clone() : null;
+  const body = clonedRequest ? await clonedRequest.text() : undefined;
 
   try {
     const response = await fetch(targetUrl, {
       method: request.method,
-      headers: {
-        ...Object.fromEntries(
-          Object.entries(request.headers).filter(
-            ([key]) => !['host', 'connection', 'content-length', 'content-encoding', 'transfer-encoding'].includes(key.toLowerCase())
-          )
-        ),
-        'X-Forwarded-Host': 'jingni2.citongshuo.online',
-        'X-Forwarded-Proto': 'https',
-      },
+      headers: forwardHeaders,
       body: body,
       redirect: 'manual',
     });
