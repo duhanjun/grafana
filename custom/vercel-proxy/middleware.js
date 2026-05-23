@@ -8,6 +8,7 @@ export default async function middleware(request) {
   const targetUrl = `https://grafana-production-0a56.up.railway.app${targetPath}`;
 
   const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
+  const body = hasBody ? await request.text() : undefined;
 
   try {
     const response = await fetch(targetUrl, {
@@ -15,13 +16,13 @@ export default async function middleware(request) {
       headers: {
         ...Object.fromEntries(
           Object.entries(request.headers).filter(
-            ([key]) => !['host', 'connection', 'content-length', 'content-encoding'].includes(key.toLowerCase())
+            ([key]) => !['host', 'connection', 'content-length', 'content-encoding', 'transfer-encoding'].includes(key.toLowerCase())
           )
         ),
         'X-Forwarded-Host': 'jingni2.citongshuo.online',
         'X-Forwarded-Proto': 'https',
       },
-      body: hasBody ? request.body : undefined,
+      body: body,
       redirect: 'manual',
     });
 
