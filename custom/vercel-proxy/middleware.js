@@ -34,40 +34,24 @@ export default async function middleware(request) {
 
     const location = response.headers.get('location');
 
-    if ((response.status === 307 || response.status === 302) && location) {
-      const redirectUrl = location.startsWith('/')
-        ? `https://jingni2.citongshuo.online${location}`
-        : location;
-      const redirectHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0;url=${redirectUrl}">
-  <title>Redirecting...</title>
-</head>
-<body>
-  <p>Redirecting to <a href="${redirectUrl}">${redirectUrl}</a></p>
-</body>
-</html>`;
-
-      return new Response(redirectHtml, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'X-Proxied-By': 'Vercel-Edge-Middleware',
-          'X-Original-Status': String(response.status),
-          'X-Redirect-To': redirectUrl,
-        },
-      });
-    }
-
     const newHeaders = new Headers();
     response.headers.forEach((value, key) => {
       if (key.toLowerCase() !== 'transfer-encoding' &&
-          key.toLowerCase() !== 'content-length' &&
-          key.toLowerCase() !== 'location') {
+          key.toLowerCase() !== 'content-length') {
         newHeaders.set(key, value);
       }
     });
+
+    if ((response.status === 307 || response.status === 302) && location) {
+      if (location.startsWith('/')) {
+        newHeaders.set('location', `https://jingni2.citongshuo.online${location}`);
+      } else if (location.includes('grafana-production-0a56.up.railway.app')) {
+        newHeaders.set('location', location.replace(
+          'grafana-production-0a56.up.railway.app',
+          'jingni2.citongshuo.online'
+        ));
+      }
+    }
 
     newHeaders.set('X-Proxied-By', 'Vercel-Edge-Middleware');
 
