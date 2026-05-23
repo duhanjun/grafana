@@ -61,20 +61,26 @@ export default async function middleware(request) {
     });
 
     const newHeaders = new Headers();
-    const setCookieHeaders = response.headers.getSetCookie
-      ? response.headers.getSetCookie()
-      : [];
+
+    const hasGetSetCookie = typeof response.headers.getSetCookie === 'function';
+    const setCookies = hasGetSetCookie ? response.headers.getSetCookie() : null;
 
     for (const [key, value] of response.headers) {
       const lower = key.toLowerCase();
       if (lower === 'transfer-encoding' || lower === 'content-length') continue;
-      if (lower === 'set-cookie') continue;
       if (lower === 'location') continue;
+      if (lower === 'set-cookie' && hasGetSetCookie && setCookies.length > 0) continue;
+      if (lower === 'set-cookie') {
+        newHeaders.append('set-cookie', rewriteSetCookie(value));
+        continue;
+      }
       newHeaders.append(key, value);
     }
 
-    for (const cookie of setCookieHeaders) {
-      newHeaders.append('set-cookie', rewriteSetCookie(cookie));
+    if (hasGetSetCookie && setCookies && setCookies.length > 0) {
+      for (const cookie of setCookies) {
+        newHeaders.append('set-cookie', rewriteSetCookie(cookie));
+      }
     }
 
     const location = response.headers.get('location');
@@ -83,6 +89,7 @@ export default async function middleware(request) {
     }
 
     newHeaders.set('X-Proxied-By', 'Vercel-Edge-Middleware');
+    newHeaders.set('X-Debug-SetCookie-Method', hasGetSetCookie ? 'getSetCookie' : 'fallback-iteration');
 
     return new Response(response.body, {
       status: response.status,
