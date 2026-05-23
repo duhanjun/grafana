@@ -28,20 +28,18 @@ function rewriteLocation(location) {
   return location;
 }
 
+function rewriteBody(body, contentType) {
+  if (!contentType) return body;
+  if (contentType.includes('text/html') || contentType.includes('application/json') || contentType.includes('javascript')) {
+    return body
+      .replace(/http:\/\/localhost:3000/g, `https://${PROXY_HOST}`)
+      .replace(new RegExp(`https?://${TARGET_HOST.replace('.', '\\.')}`, 'g'), `https://${PROXY_HOST}`);
+  }
+  return body;
+}
+
 export default async function middleware(request) {
   const url = new URL(request.url);
-
-  if (url.pathname === '/__proxy_test_cookies') {
-    return new Response('test cookie from middleware', {
-      status: 302,
-      headers: {
-        'Location': `https://${PROXY_HOST}/login`,
-        'Set-Cookie': 'test_session=abc123; Path=/; HttpOnly; Secure; SameSite=Lax',
-        'Content-Type': 'text/plain',
-      },
-    });
-  }
-
   const targetPath = url.pathname + url.search;
   const targetUrl = `${TARGET_URL}${targetPath}`;
 
@@ -77,8 +75,7 @@ export default async function middleware(request) {
 
     const hasGetSetCookie = typeof response.headers.getSetCookie === 'function';
     const setCookies = hasGetSetCookie ? response.headers.getSetCookie() : null;
-    debugInfo.push(`sc-method=${hasGetSetCookie ? 'getSetCookie' : 'fallback'}`);
-    debugInfo.push(`sc-count=${setCookies ? setCookies.length : 'N/A'}`);
+    debugInfo.push(`sc=${setCookies ? setCookies.length : 'N/A'}`);
 
     for (const [key, value] of response.headers) {
       const lower = key.toLowerCase();
@@ -87,7 +84,6 @@ export default async function middleware(request) {
       if (lower === 'set-cookie' && hasGetSetCookie && setCookies && setCookies.length > 0) continue;
       if (lower === 'set-cookie') {
         newHeaders.append('set-cookie', rewriteSetCookie(value));
-        debugInfo.push(`sc-fallback=${value.substring(0, 50)}`);
         continue;
       }
       newHeaders.append(key, value);
@@ -95,17 +91,29 @@ export default async function middleware(request) {
 
     if (hasGetSetCookie && setCookies && setCookies.length > 0) {
       for (const cookie of setCookies) {
-        const rewritten = rewriteSetCookie(cookie);
-        newHeaders.append('set-cookie', rewritten);
-        debugInfo.push(`sc-rewritten=${rewritten.substring(0, 80)}`);
+        newHeaders.append('set-cookie', rewriteSetCookie(cookie));
       }
     }
 
     const location = response.headers.get('location');
     if ((response.status === 307 || response.status === 302 || response.status === 303) && location) {
-      const rewritten = rewriteLocation(location);
-      newHeaders.set('location', rewritten);
-      debugInfo.push(`loc=${location}->${rewritten}`);
+      newHeaders.set('location', rewriteLocation(location));
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    const shouldRewriteBody = contentType.includes('text/html') ||
+      contentType.includes('application/json') ||
+      contentType.includes('javascript');
+
+    if (shouldRewriteBody) {
+      const responseBody = await response.text();
+      const rewrittenBody = rewriteBody(responseBody, contentType);
+      newHeaders.set('X-Proxied-By', 'Vercel-Edge-Middleware');
+      newHeaders.set('X-Debug', debugInfo.join(' | '));
+      return new Response(rewrittenBody, {
+        status: response.status,
+        headers: newHeaders,
+      });
     }
 
     newHeaders.set('X-Proxied-By', 'Vercel-Edge-Middleware');
