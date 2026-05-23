@@ -9,7 +9,7 @@ const TARGET_URL = `https://${TARGET_HOST}`;
 function rewriteSetCookie(value) {
   return value
     .replace(new RegExp(`Domain=${TARGET_HOST.replace('.', '\\.')}`, 'gi'), `Domain=${PROXY_HOST}`)
-    .replace(new RegExp(`Domain=localhost`, 'gi'), '')
+    .replace(new RegExp(`Domain=localhost[^;]*`, 'gi'), '')
     .replace(/;\s*;/g, ';')
     .replace(/;\s*$/, '');
 }
@@ -23,7 +23,7 @@ function rewriteLocation(location) {
     return location.replace(TARGET_HOST, PROXY_HOST);
   }
   if (location.includes('localhost:3000')) {
-    return location.replace('localhost:3000', PROXY_HOST);
+    return location.replace('http://localhost:3000', `https://${PROXY_HOST}`);
   }
   return location;
 }
@@ -61,17 +61,21 @@ export default async function middleware(request) {
     });
 
     const newHeaders = new Headers();
+    const debugInfo = [];
 
     const hasGetSetCookie = typeof response.headers.getSetCookie === 'function';
     const setCookies = hasGetSetCookie ? response.headers.getSetCookie() : null;
+    debugInfo.push(`sc-method=${hasGetSetCookie ? 'getSetCookie' : 'fallback'}`);
+    debugInfo.push(`sc-count=${setCookies ? setCookies.length : 'N/A'}`);
 
     for (const [key, value] of response.headers) {
       const lower = key.toLowerCase();
       if (lower === 'transfer-encoding' || lower === 'content-length') continue;
       if (lower === 'location') continue;
-      if (lower === 'set-cookie' && hasGetSetCookie && setCookies.length > 0) continue;
+      if (lower === 'set-cookie' && hasGetSetCookie && setCookies && setCookies.length > 0) continue;
       if (lower === 'set-cookie') {
         newHeaders.append('set-cookie', rewriteSetCookie(value));
+        debugInfo.push(`sc-fallback=${value.substring(0, 50)}`);
         continue;
       }
       newHeaders.append(key, value);
@@ -79,17 +83,21 @@ export default async function middleware(request) {
 
     if (hasGetSetCookie && setCookies && setCookies.length > 0) {
       for (const cookie of setCookies) {
-        newHeaders.append('set-cookie', rewriteSetCookie(cookie));
+        const rewritten = rewriteSetCookie(cookie);
+        newHeaders.append('set-cookie', rewritten);
+        debugInfo.push(`sc-rewritten=${rewritten.substring(0, 80)}`);
       }
     }
 
     const location = response.headers.get('location');
     if ((response.status === 307 || response.status === 302 || response.status === 303) && location) {
-      newHeaders.set('location', rewriteLocation(location));
+      const rewritten = rewriteLocation(location);
+      newHeaders.set('location', rewritten);
+      debugInfo.push(`loc=${location}->${rewritten}`);
     }
 
     newHeaders.set('X-Proxied-By', 'Vercel-Edge-Middleware');
-    newHeaders.set('X-Debug-SetCookie-Method', hasGetSetCookie ? 'getSetCookie' : 'fallback-iteration');
+    newHeaders.set('X-Debug', debugInfo.join(' | '));
 
     return new Response(response.body, {
       status: response.status,
