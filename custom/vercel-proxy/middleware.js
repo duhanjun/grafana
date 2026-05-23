@@ -32,22 +32,13 @@ export default async function middleware(request) {
   const url = new URL(request.url);
 
   if (url.pathname === '/__proxy_test_cookies') {
-    const testResp = await fetch('https://httpbin.org/cookies/set?test_cookie=hello123', {
-      redirect: 'manual',
-    });
-    const hasGetSetCookie = typeof testResp.headers.getSetCookie === 'function';
-    const setCookies = hasGetSetCookie ? testResp.headers.getSetCookie() : null;
-    const allHeaders = [];
-    for (const [k, v] of testResp.headers) {
-      allHeaders.push(`${k}: ${v}`);
-    }
-    return new Response(JSON.stringify({
-      hasGetSetCookie,
-      setCookiesCount: setCookies ? setCookies.length : null,
-      setCookies,
-      allHeaders,
-    }, null, 2), {
-      headers: { 'Content-Type': 'application/json' },
+    return new Response('test cookie from middleware', {
+      status: 302,
+      headers: {
+        'Location': `https://${PROXY_HOST}/login`,
+        'Set-Cookie': 'test_session=abc123; Path=/; HttpOnly; Secure; SameSite=Lax',
+        'Content-Type': 'text/plain',
+      },
     });
   }
 
