@@ -66,9 +66,10 @@ Frequency: Check every 1 hour
 
 ```bash
 # 容器配置
-GRAFANA_VERSION=10.0.0
+GRAFANA_VERSION=13.0.1
 CONTAINER_NAME=Grafana
 GRAFANA_PORT=3000
+GRAFANA_INTERNAL_PORT=3000
 
 # 数据库配置
 GF_DATABASE_TYPE=mysql
@@ -172,9 +173,10 @@ docker logs --tail=100 -f grafana
 
 | 变量名 | 必填 | 默认值 | 说明 |
 |--------|------|--------|------|
-| `GRAFANA_VERSION` | 是 | 10.0.0 | Grafana 镜像版本 |
+| `GRAFANA_VERSION` | 是 | 13.0.1 | Grafana 镜像版本 |
 | `CONTAINER_NAME` | 是 | Grafana | Docker 容器名称 |
 | `GRAFANA_PORT` | 是 | 3000 | 宿主机映射端口 |
+| `GRAFANA_INTERNAL_PORT` | 是 | 3000 | 容器内部端口 |
 | `GF_DATABASE_TYPE` | 是 | - | 数据库类型（mysql/postgres/sqlite3） |
 | `GF_DATABASE_HOST` | 是 | - | 数据库主机地址（包含端口） |
 | `GF_DATABASE_NAME` | 是 | grafana | 数据库名称 |
