@@ -173,7 +173,7 @@ docker logs --tail=100 -f grafana
 
 | 变量名 | 必填 | 默认值 | 说明 |
 |--------|------|--------|------|
-| `GRAFANA_VERSION` | 是 | 13.0.1 | Grafana 镜像版本 |
+| `GRAFANA_VERSION` | 是 | latest | Grafana 镜像版本（可用 latest 或具体版本号） |
 | `CONTAINER_NAME` | 是 | Grafana | Docker 容器名称 |
 | `GRAFANA_PORT` | 是 | - | 宿主机映射端口 |
 | `GRAFANA_INTERNAL_PORT` | 是 | - | 容器内部端口 |
