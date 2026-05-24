@@ -14,9 +14,6 @@ services:
       - GF_DATABASE_NAME=${GF_DATABASE_NAME}
       - GF_DATABASE_USER=${GF_DATABASE_USER}
       - GF_DATABASE_PASSWORD=${GF_DATABASE_PASSWORD}
-      - GF_SECURITY_ALLOW_EMBEDDING=${GF_SECURITY_ALLOW_EMBEDDING:-true}
-      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-%(protocol)s://%(domain)s/}
-      - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN:-localhost}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]

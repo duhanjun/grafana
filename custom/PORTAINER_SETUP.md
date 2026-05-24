@@ -65,20 +65,20 @@ Frequency: Check every 1 hour
 在 **"Environment variables"** 部分，点击 **"+ Add an environment variable"**，添加以下必填变量：
 
 ```bash
+# 容器配置
+GRAFANA_VERSION=10.0.0
+CONTAINER_NAME=Grafana
+GRAFANA_PORT=3000
+
 # 数据库配置
+GF_DATABASE_TYPE=mysql
 GF_DATABASE_HOST=your-mysql-host.example.com:3306
 GF_DATABASE_NAME=grafana
 GF_DATABASE_USER=grafana_db
 GF_DATABASE_PASSWORD=your-database-password
-
-# Grafana 管理员账号
-GF_SECURITY_ADMIN_USER=admin
-GF_SECURITY_ADMIN_PASSWORD=your-strong-password
-
-# 服务器配置（可选）
-GF_SERVER_DOMAIN=your-grafana-domain.com
-GF_SERVER_ROOT_URL=https://%(domain)s/
 ```
+
+> **注意**: 其他可选配置（如 `GF_SERVER_DOMAIN`、`GF_SERVER_ROOT_URL`、`GF_SECURITY_ALLOW_EMBEDDING` 等）可以在 Grafana 部署后，通过 **Configuration → Server → General** 页面进行设置。
 
 #### 步骤 2.6: 部署 Stack
 
@@ -172,15 +172,16 @@ docker logs --tail=100 -f grafana
 
 | 变量名 | 必填 | 默认值 | 说明 |
 |--------|------|--------|------|
-| `GRAFANA_VERSION` | 否 | 10.0.0 | Grafana 镜像版本 |
-| `GF_DATABASE_HOST` | 是 | - | MySQL 主机地址（包含端口） |
-| `GF_DATABASE_NAME` | 否 | grafana | 数据库名称 |
+| `GRAFANA_VERSION` | 是 | 10.0.0 | Grafana 镜像版本 |
+| `CONTAINER_NAME` | 是 | Grafana | Docker 容器名称 |
+| `GRAFANA_PORT` | 是 | 3000 | 宿主机映射端口 |
+| `GF_DATABASE_TYPE` | 是 | - | 数据库类型（mysql/postgres/sqlite3） |
+| `GF_DATABASE_HOST` | 是 | - | 数据库主机地址（包含端口） |
+| `GF_DATABASE_NAME` | 是 | grafana | 数据库名称 |
 | `GF_DATABASE_USER` | 是 | - | 数据库用户名 |
 | `GF_DATABASE_PASSWORD` | 是 | - | 数据库密码 |
-| `GF_SECURITY_ADMIN_USER` | 否 | admin | Grafana 管理员用户名 |
-| `GF_SECURITY_ADMIN_PASSWORD` | 是 | - | Grafana 管理员密码 |
-| `GF_SERVER_DOMAIN` | 否 | localhost | Grafana 域名 |
-| `GF_SERVER_ROOT_URL` | 否 | %(protocol)s://%(domain)s/ | 服务器根 URL |
+
+> **注意**: 其他配置（如 `GF_SERVER_DOMAIN`、`GF_SERVER_ROOT_URL`、`GF_SECURITY_ALLOW_EMBEDDING` 等）可以在 Grafana 部署后通过 **Configuration → Server → General** 页面设置。
 
 ## 安全建议
 
