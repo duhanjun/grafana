@@ -2,10 +2,10 @@ version: "3.8"
 
 services:
   grafana:
-    image: grafana/grafana-oss:${GRAFANA_VERSION:-10.0.0}
-    container_name: ${CONTAINER_NAME:-Grafana}
+    image: grafana/grafana-oss:${GRAFANA_VERSION}
+    container_name: ${CONTAINER_NAME}
     ports:
-      - "${GRAFANA_PORT:-3000}:3000"
+      - "${GRAFANA_PORT}:3000"
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
