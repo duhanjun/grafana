@@ -5,7 +5,7 @@ services:
     image: grafana/grafana-oss:${GRAFANA_VERSION}
     container_name: ${CONTAINER_NAME}
     ports:
-      - "${GRAFANA_PORT}:${GRAFANA_INTERNAL_PORT:-3000}"
+      - "${GRAFANA_PORT}:${GRAFANA_INTERNAL_PORT}"
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
@@ -16,7 +16,7 @@ services:
       - GF_DATABASE_PASSWORD=${GF_DATABASE_PASSWORD}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${GRAFANA_INTERNAL_PORT:-3000}/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${GRAFANA_INTERNAL_PORT}/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
